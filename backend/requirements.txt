@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pyjwt
+passlib[bcrypt]
+pydantic-settings
+python-multipart
+pyotp
+python-dotenv
+pg8000
+bcrypt
+httpx
+google-auth
+requests
