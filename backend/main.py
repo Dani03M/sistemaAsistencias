@@ -1,5 +1,6 @@
 import os
 from typing import Optional
+from pydantic import BaseModel
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Header, Query
 from fastapi.middleware.cors import CORSMiddleware

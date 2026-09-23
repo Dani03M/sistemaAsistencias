@@ -10,7 +10,7 @@ class UserLogin(BaseModel):
     device_name: str # ej. "Chrome en Windows"
 
 class Token(BaseModel):
-    access_token: str
+    access_token: Optional[str] = None
     token_type: str
     user_id: int
     is_admin: bool

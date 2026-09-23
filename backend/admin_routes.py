@@ -1040,11 +1040,15 @@ class NetworkSettingUpdate(BaseModel):
 
 
 def get_client_ip(request: Request) -> str:
-    """Obtiene la IP local real del cliente o desde el proxy de la nube."""
-    x_forwarded_for = request.headers.get("X-Forwarded-For")
-    if x_forwarded_for:
-        return x_forwarded_for.split(",")[0].strip()
-        
+    """Obtiene la IP local real del cliente de forma segura."""
+    if os.getenv("TRUST_PROXY", "false").lower() == "true":
+        x_forwarded_for = request.headers.get("X-Forwarded-For")
+        if x_forwarded_for:
+            # Los proxies de nube agregan la IP real al final de la cadena
+            ips = [ip.strip() for ip in x_forwarded_for.split(",") if ip.strip()]
+            if ips:
+                return ips[-1]
+                
     if request.client:
         return request.client.host
     return "127.0.0.1"
