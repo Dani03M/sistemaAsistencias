@@ -1014,7 +1014,11 @@ class NetworkSettingUpdate(BaseModel):
 
 
 def get_client_ip(request: Request) -> str:
-    """Obtiene la IP local real del cliente de forma directa (seguro contra spoofing)."""
+    """Obtiene la IP local real del cliente o desde el proxy de la nube."""
+    x_forwarded_for = request.headers.get("X-Forwarded-For")
+    if x_forwarded_for:
+        return x_forwarded_for.split(",")[0].strip()
+        
     if request.client:
         return request.client.host
     return "127.0.0.1"
