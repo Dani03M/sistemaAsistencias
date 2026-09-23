@@ -118,6 +118,22 @@ def get_employee_me(user: models.User = Depends(auth.get_current_user)):
         "tolerance_minutes": user.tolerance_minutes if user.tolerance_minutes is not None else 15
     }
 
+class EmployeeChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+
+@app.put("/api/employee/change-password")
+def change_employee_password(data: EmployeeChangePassword, user: models.User = Depends(auth.get_current_user), db: Session = Depends(get_db)):
+    if not auth.verify_password(data.current_password, user.password_hash):
+        raise HTTPException(status_code=401, detail="La contraseña actual es incorrecta.")
+    
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="La nueva contraseña debe tener al menos 6 caracteres.")
+        
+    user.password_hash = auth.get_password_hash(data.new_password)
+    db.commit()
+    return {"message": "Contraseña actualizada exitosamente."}
+
 @app.get("/api/employee/today-status")
 def get_employee_today_status(user: models.User = Depends(auth.get_current_user), db: Session = Depends(get_db)):
     now_utc = datetime.now(timezone.utc)

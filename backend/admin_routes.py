@@ -110,6 +110,23 @@ def verify_admin_password(data: PasswordVerifyRequest, admin_dni: str = Depends(
         raise HTTPException(status_code=401, detail="Contraseña incorrecta")
     return {"success": True}
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+@protected_router.put("/change-password")
+def change_admin_password(data: ChangePasswordRequest, admin_dni: str = Depends(auth.get_current_admin_user), db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.dni == admin_dni).first()
+    if not user or not auth.verify_password(data.current_password, user.password_hash):
+        raise HTTPException(status_code=401, detail="La contraseña actual es incorrecta.")
+    
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="La nueva contraseña debe tener al menos 6 caracteres.")
+        
+    user.password_hash = auth.get_password_hash(data.new_password)
+    db.commit()
+    return {"message": "Contraseña actualizada exitosamente."}
+
 
 # ==========================================
 # DASHBOARD - Resumen del día

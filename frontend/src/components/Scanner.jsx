@@ -3,6 +3,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import getFingerprint from '../utils/fingerprint';
+import ChangePasswordModal from './ChangePasswordModal';
 import { 
   QrCode, 
   History, 
@@ -16,13 +17,15 @@ import {
   Calendar, 
   Sparkles,
   RefreshCw,
-  WifiOff
+  WifiOff,
+  Key
 } from 'lucide-react';
 
 const API_URL = '/api';
 const SESSION_MINUTES = 30;
 
 export default function Scanner() {
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('scan'); // 'scan' | 'history'
   const [profile, setProfile] = useState(null);
   const [todayStatus, setTodayStatus] = useState(null);
@@ -265,10 +268,17 @@ export default function Scanner() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <span className={`text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full ${minutesLeft <= 5 ? 'bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse' : 'bg-slate-800/80 text-slate-400 border border-white/5'}`}>
               {minutesLeft} min
             </span>
+            <button
+              onClick={() => setIsPasswordModalOpen(true)}
+              className="flex items-center justify-center w-9 h-9 text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 rounded-full transition-colors"
+              title="Cambiar Contraseña"
+            >
+              <Key className="w-4 h-4" />
+            </button>
             <button
               onClick={handleLogout}
               className="flex items-center justify-center w-9 h-9 text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-full transition-colors"
@@ -593,6 +603,13 @@ export default function Scanner() {
           </button>
         </div>
       </nav>
+
+      <ChangePasswordModal 
+        isOpen={isPasswordModalOpen} 
+        onClose={() => setIsPasswordModalOpen(false)} 
+        userType="employee"
+        apiUrl="/api/employee"
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import ChangePasswordModal from './ChangePasswordModal';
 import { 
   LayoutDashboard, 
   ClipboardList, 
@@ -7,11 +8,13 @@ import {
   Users, 
   CalendarDays,
   Menu, 
-  LogOut
+  LogOut,
+  Lock
 } from 'lucide-react';
 
 const AdminLayout = ({ title, children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const navItems = [
     { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -81,7 +84,14 @@ const AdminLayout = ({ title, children }) => {
           })}
         </nav>
 
-        <div className="p-5 border-t border-slate-800/60 bg-[#070b14]">
+        <div className="p-5 border-t border-slate-800/60 bg-[#070b14] space-y-2">
+          <button 
+            onClick={() => setIsPasswordModalOpen(true)}
+            className="flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800/80 border border-transparent rounded-xl transition-all duration-300 w-full px-4 py-2.5 text-sm font-medium group"
+          >
+            <Lock className="w-4 h-4 mr-2 text-slate-500 group-hover:text-blue-400 transition-colors" />
+            Cambiar Contraseña
+          </button>
           <button 
             onClick={handleLogout}
             className="flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500/10 hover:border-red-500/20 border border-transparent rounded-xl transition-all duration-300 w-full px-4 py-2.5 text-sm font-medium group"
@@ -121,6 +131,13 @@ const AdminLayout = ({ title, children }) => {
           {children}
         </main>
       </div>
+
+      <ChangePasswordModal 
+        isOpen={isPasswordModalOpen} 
+        onClose={() => setIsPasswordModalOpen(false)} 
+        userType="admin"
+        apiUrl="/api/admin"
+      />
     </div>
   );
 };
