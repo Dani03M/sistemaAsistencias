@@ -216,21 +216,30 @@ def get_payroll_summary(
     target_month = month or local_now.month
     target_year = year or local_now.year
 
+    # 1. Obtener todos los empleados (1 consulta)
     employees = db.query(models.User).filter(models.User.is_admin == False).all()
+    
+    # Calcular primer y último día del mes
+    from calendar import monthrange
+    _, last_day = monthrange(target_year, target_month)
+    start_date = datetime(target_year, target_month, 1).date()
+    end_date = datetime(target_year, target_month, last_day).date()
+
+    # 2. Obtener TODOS los registros del mes en UNA SOLA consulta
+    all_month_records = db.query(models.AttendanceRecord).filter(
+        cast(models.AttendanceRecord.timestamp - timedelta(hours=5), Date) >= start_date,
+        cast(models.AttendanceRecord.timestamp - timedelta(hours=5), Date) <= end_date
+    ).all()
+
+    # 3. Agrupar registros por empleado en memoria de Python (O(N))
+    from collections import defaultdict
+    records_by_user = defaultdict(list)
+    for r in all_month_records:
+        records_by_user[r.user_id].append(r)
+
     summary = []
-
     for emp in employees:
-        records = db.query(models.AttendanceRecord).filter(
-            models.AttendanceRecord.user_id == emp.id,
-            cast(models.AttendanceRecord.timestamp - timedelta(hours=5), Date) >= datetime(target_year, target_month, 1).date()
-        ).all()
-
-        # Filtrar solo el mes solicitado
-        month_records = [
-            r for r in records 
-            if (r.timestamp - timedelta(hours=5)).month == target_month 
-            and (r.timestamp - timedelta(hours=5)).year == target_year
-        ]
+        month_records = records_by_user.get(emp.id, [])
 
         days_set = {(r.timestamp - timedelta(hours=5)).date() for r in month_records if r.record_type == "ENTRADA"}
         days_attended = len(days_set)
