@@ -254,6 +254,18 @@ if not KIOSK_API_KEY:
 # ==========================================
 # RUTAS DEL KIOSCO (PANTALLA DE LA EMPRESA)
 # ==========================================
+
+class KioskAuthReq(BaseModel):
+    dni: str
+    password: str
+
+@app.post("/api/kiosk/authorize")
+def authorize_kiosk(data: KioskAuthReq, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.dni == data.dni, models.User.is_admin == True).first()
+    if not user or not auth.verify_password(data.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Credenciales de administrador inválidas.")
+    return {"kiosk_api_key": KIOSK_API_KEY}
+
 @app.get("/api/kiosk/qr-data")
 def get_kiosk_qr(
     request: Request,
