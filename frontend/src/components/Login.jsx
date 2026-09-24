@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Shield, User, Lock, Loader2, CheckCircle, AlertTriangle, XCircle, ArrowRight, ArrowLeft } from 'lucide-react';
@@ -15,7 +15,7 @@ export default function Login() {
   const [status, setStatus] = useState(null);
   const navigate = useNavigate();
 
-  // Redirección automática si ya hay token
+  // RedirecciÃ³n automÃ¡tica si ya hay token
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (token) {
@@ -28,10 +28,10 @@ export default function Login() {
     setStatus(null);
 
     const cleanDNI = dni.trim();
-    if (!/^\d{8}$/.test(cleanDNI)) {
+    if (!cleanDNI) {
       setStatus({
         type: 'error',
-        message: 'El DNI debe tener exactamente 8 dígitos numéricos.'
+        message: 'El DNI o Correo es requerido.'
       });
       return;
     }
@@ -39,7 +39,7 @@ export default function Login() {
     if (!password || password.trim().length === 0) {
       setStatus({
         type: 'error',
-        message: 'Por favor ingresa tu contraseña.'
+        message: 'Por favor ingresa tu contraseÃ±a.'
       });
       return;
     }
@@ -52,7 +52,7 @@ export default function Login() {
       // Detectar modelo real del dispositivo
       let deviceName = 'Dispositivo desconocido';
       try {
-        // Chrome/Edge en Android expone el modelo real del teléfono
+        // Chrome/Edge en Android expone el modelo real del telÃ©fono
         if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
           const hints = await navigator.userAgentData.getHighEntropyValues(['model', 'platform', 'platformVersion']);
           const model = hints.model || '';
@@ -63,7 +63,7 @@ export default function Login() {
             deviceName = platform;
           }
         } else {
-          // Fallback parsing de userAgent estándar
+          // Fallback parsing de userAgent estÃ¡ndar
           const ua = navigator.userAgent;
           if (/Android/i.test(ua)) {
             const match = ua.match(/Android[^;]+;\s*([^;)]+)\s*[;)]/);
@@ -91,13 +91,13 @@ export default function Login() {
       const data = response.data;
 
       if (data.device_approved) {
-        // Solo guardar token si el dispositivo está aprobado
+        // Solo guardar token si el dispositivo estÃ¡ aprobado
         if (data.access_token) {
           localStorage.setItem('access_token', data.access_token);
         }
         setStatus({
           type: 'success',
-          message: 'Dispositivo aprobado. Entrando al escáner...'
+          message: 'Dispositivo aprobado. Entrando al escÃ¡ner...'
         });
         setTimeout(() => {
           navigate('/scanner', { replace: true });
@@ -105,7 +105,7 @@ export default function Login() {
       } else {
         setStatus({
           type: 'warning',
-          message: 'Dispositivo pendiente de aprobación por RRHH.'
+          message: 'Dispositivo pendiente de aprobaciÃ³n por RRHH.'
         });
       }
       
@@ -118,12 +118,12 @@ export default function Login() {
           const detail = error.response.data.detail;
           errorMessage = Array.isArray(detail) ? detail.map(e => e.msg).join(', ') : detail;
         } else if (error.response.status === 401) {
-          errorMessage = 'DNI o contraseña incorrectos.';
+          errorMessage = 'DNI/Correo o contraseña incorrectos.'
         } else if (error.response.status === 403) {
           errorMessage = 'Usuario deshabilitado o no autorizado.';
         }
       } else if (error.request) {
-        errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+        errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexiÃ³n.';
       }
       
       setStatus({
@@ -147,7 +147,7 @@ export default function Login() {
           className="inline-flex items-center gap-2 text-indigo-300/70 hover:text-white text-sm font-medium transition-colors group"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          <span>Volver al Menú Principal</span>
+          <span>Volver al MenÃº Principal</span>
         </Link>
       </div>
 
@@ -178,25 +178,25 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-2">DNI</label>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">DNI / Correo</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-indigo-400/70" />
                 </div>
                 <input
                   type="text"
-                  maxLength="8"
+                  
                   value={dni}
-                  onChange={(e) => setDNI(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => setDNI(e.target.value)}
                   className="block w-full pl-10 pr-3 py-3 border border-slate-700/60 rounded-xl bg-slate-900/50 text-white focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 placeholder-slate-600 transition-colors shadow-inner"
-                  placeholder="Número de DNI"
+                  placeholder="Número de DNI o Correo"
                   disabled={loading}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-2">Contraseña</label>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">ContraseÃ±a</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-indigo-400/70" />
@@ -206,7 +206,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-10 pr-3 py-3 border border-slate-700/60 rounded-xl bg-slate-900/50 text-white focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 placeholder-slate-600 transition-colors shadow-inner"
-                  placeholder="Tu contraseña"
+                  placeholder="Tu contraseÃ±a"
                   disabled={loading}
                 />
               </div>
@@ -220,7 +220,7 @@ export default function Login() {
               {loading ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Iniciando sesión...
+                  Iniciando sesiÃ³n...
                 </>
               ) : (
                 <>
@@ -243,3 +243,6 @@ export default function Login() {
     </div>
   );
 }
+
+
+

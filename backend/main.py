@@ -41,10 +41,13 @@ app.add_middleware(
 # ==========================================
 @app.post("/api/auth/login", response_model=schemas.Token)
 def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
-    # 1. Buscar usuario
-    user = db.query(models.User).filter(models.User.dni == login_data.dni).first()
+    # 1. Buscar usuario por DNI o por Correo
+    identifier = login_data.dni.strip().lower()
+    user = db.query(models.User).filter(
+        (models.User.dni == identifier) | (models.User.email.ilike(identifier))
+    ).first()
     if not user or not auth.verify_password(login_data.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="DNI o contraseÃƒÂ±a incorrectos")
+        raise HTTPException(status_code=401, detail="DNI/Correo o contraseña incorrectos")
         
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Tu cuenta estÃƒÂ¡ desactivada. Contacta a RRHH.")
