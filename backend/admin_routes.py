@@ -70,14 +70,14 @@ def admin_google_login(data: GoogleLoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="No se pudo obtener el correo de la cuenta de Google")
     
     email = email.strip().lower()
-    admin_env_email = (os.getenv("ADMIN_GOOGLE_EMAIL") or "").strip().lower()
+    admin_env_emails = [e.strip().lower() for e in (os.getenv("ADMIN_GOOGLE_EMAIL") or "").split(",") if e.strip()]
 
     user = db.query(models.User).filter(
         models.User.email.ilike(email),
         models.User.is_admin == True
     ).first()
 
-    if not user and admin_env_email and email == admin_env_email:
+    if not user and email in admin_env_emails:
         user = db.query(models.User).filter(models.User.is_admin == True).first()
         if user:
             user.email = email
