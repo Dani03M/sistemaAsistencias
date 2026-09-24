@@ -109,7 +109,7 @@ export default function AdminAttendance() {
 
   const parseSafeDate = (isoString) => {
     if (!isoString) return null;
-    // Si la BD guardó el ISO sin timezone (ej. 2026-09-15T12:00:00), asumimos que es UTC agregando 'Z'
+    // Si la BD guardÃ³ el ISO sin timezone (ej. 2026-09-15T12:00:00), asumimos que es UTC agregando 'Z'
     const hasTimezone = isoString.endsWith('Z') || isoString.includes('+') || (isoString.lastIndexOf('-') > 10);
     return new Date(hasTimezone ? isoString : isoString + 'Z');
   };
@@ -223,7 +223,7 @@ export default function AdminAttendance() {
                 type="button"
                 onClick={handleDownloadPayrollCSV}
                 className="bg-indigo-600 text-white px-3 py-2 rounded-md font-medium text-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center justify-center w-full sm:w-auto col-span-2 sm:col-span-1"
-                title="Descargar resumen consolidado para cálculo de planilla"
+                title="Descargar resumen consolidado para cÃ¡lculo de planilla"
               >
                 <FileSpreadsheet className="w-4 h-4 mr-1.5" />
                 Planilla (Mes)
@@ -244,7 +244,7 @@ export default function AdminAttendance() {
                   <th scope="col" className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Jornada</th>
                   <th scope="col" className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Fecha</th>
                   <th scope="col" className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Hora</th>
-                  <th scope="col" className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Dispositivo</th>
+                  <th scope="col" className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Dispositivo</th>`r`n                  <th scope="col" className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Red / IP</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-200">
@@ -292,6 +292,19 @@ export default function AdminAttendance() {
                         {record.timestamp ? parseSafeDate(record.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : ''}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-slate-500">{record.device_name || 'N/A'}</td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        {record.network_validated ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            ✅ Oficina
+                          </span>
+                        ) : record.ip_address ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200" title="Red no validada / Restricción apagada">
+                            ⚠️ IP: {record.ip_address}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate-400">Manual / Antiguo</span>
+                        )}
+                      </td>
                     </tr>
                   ))
                 ) : (
@@ -315,12 +328,12 @@ export default function AdminAttendance() {
             </table>
           </div>
 
-          {/* Paginación */}
+          {/* PaginaciÃ³n */}
           <div className="bg-white px-4 py-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 sm:px-6">
             <div className="flex-1 flex flex-col sm:flex-row items-center justify-between w-full">
               <div className="mb-4 sm:mb-0">
                 <p className="text-sm text-slate-700">
-                  Mostrando página <span className="font-medium">{page}</span> de <span className="font-medium">{totalPages}</span> ({totalRecords} registros en total)
+                  Mostrando pÃ¡gina <span className="font-medium">{page}</span> de <span className="font-medium">{totalPages}</span> ({totalRecords} registros en total)
                 </p>
               </div>
               <div>
@@ -444,3 +457,4 @@ export default function AdminAttendance() {
     </AdminLayout>
   );
 }
+

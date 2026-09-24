@@ -33,9 +33,9 @@ def admin_login(data: AdminLogin, db: Session = Depends(get_db)):
         models.User.is_admin == True
     ).first()
     if not user or not auth.verify_password(data.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
+        raise HTTPException(status_code=401, detail="Correo o contraseÃ±a incorrectos")
     if not user.is_active:
-        raise HTTPException(status_code=403, detail="Tu cuenta está desactivada. Contacta a RRHH.")
+        raise HTTPException(status_code=403, detail="Tu cuenta estÃ¡ desactivada. Contacta a RRHH.")
     
     access_token = auth.create_access_token(data={"sub": user.dni, "admin": True})
     return {
@@ -63,7 +63,7 @@ def admin_google_login(data: GoogleLoginRequest, db: Session = Depends(get_db)):
             client_id
         )
     except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Token de Google inválido: {str(e)}")
+        raise HTTPException(status_code=401, detail=f"Token de Google invÃ¡lido: {str(e)}")
     
     email = id_info.get("email")
     if not email:
@@ -90,7 +90,7 @@ def admin_google_login(data: GoogleLoginRequest, db: Session = Depends(get_db)):
         )
 
     if not user.is_active:
-        raise HTTPException(status_code=403, detail="Tu cuenta de administrador está desactivada.")
+        raise HTTPException(status_code=403, detail="Tu cuenta de administrador estÃ¡ desactivada.")
 
     access_token = auth.create_access_token(data={"sub": user.dni, "admin": True, "email": email})
     return {
@@ -107,7 +107,7 @@ class PasswordVerifyRequest(BaseModel):
 def verify_admin_password(data: PasswordVerifyRequest, admin_dni: str = Depends(auth.get_current_admin_user), db: Session = Depends(get_db)):
     admin_user = db.query(models.User).filter(models.User.dni == admin_dni).first()
     if not admin_user or not auth.verify_password(data.password, admin_user.password_hash):
-        raise HTTPException(status_code=401, detail="Contraseña incorrecta")
+        raise HTTPException(status_code=401, detail="ContraseÃ±a incorrecta")
     return {"success": True}
 
 class ChangePasswordRequest(BaseModel):
@@ -118,22 +118,22 @@ class ChangePasswordRequest(BaseModel):
 def change_admin_password(data: ChangePasswordRequest, admin_dni: str = Depends(auth.get_current_admin_user), db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.dni == admin_dni).first()
     if not user or not auth.verify_password(data.current_password, user.password_hash):
-        raise HTTPException(status_code=401, detail="La contraseña actual es incorrecta.")
+        raise HTTPException(status_code=401, detail="La contraseÃ±a actual es incorrecta.")
     
     if len(data.new_password) < 6:
-        raise HTTPException(status_code=400, detail="La nueva contraseña debe tener al menos 6 caracteres.")
+        raise HTTPException(status_code=400, detail="La nueva contraseÃ±a debe tener al menos 6 caracteres.")
         
     user.password_hash = auth.get_password_hash(data.new_password)
     db.commit()
-    return {"message": "Contraseña actualizada exitosamente."}
+    return {"message": "ContraseÃ±a actualizada exitosamente."}
 
 
 # ==========================================
-# DASHBOARD - Resumen del día
+# DASHBOARD - Resumen del dÃ­a
 # ==========================================
 @protected_router.get("/dashboard")
 def get_dashboard(db: Session = Depends(get_db)):
-    # Usar hora local Perú (UTC-5) para evaluar el día de hoy
+    # Usar hora local PerÃº (UTC-5) para evaluar el dÃ­a de hoy
     local_now = datetime.now(timezone.utc) - timedelta(hours=5)
     today = local_now.date()
 
@@ -188,18 +188,18 @@ def get_dashboard(db: Session = Depends(get_db)):
 
 
 # ==========================================
-# REPORTES — Datos para gráficos y Planilla
+# REPORTES â€” Datos para grÃ¡ficos y Planilla
 # ==========================================
 @protected_router.get("/reports/weekly")
 def get_weekly_report(db: Session = Depends(get_db)):
-    """Devuelve la cantidad de entradas y salidas por día de los últimos 7 días."""
+    """Devuelve la cantidad de entradas y salidas por dÃ­a de los Ãºltimos 7 dÃ­as."""
     local_now = datetime.now(timezone.utc) - timedelta(hours=5)
     today = local_now.date()
     days = []
 
     for i in range(6, -1, -1):
         day = today - timedelta(days=i)
-        day_names_es = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+        day_names_es = ["Lun", "Mar", "MiÃ©", "Jue", "Vie", "SÃ¡b", "Dom"]
         day_name = day_names_es[day.weekday()]
 
         entradas = db.query(models.AttendanceRecord).filter(
@@ -236,7 +236,7 @@ def get_payroll_summary(
     # 1. Obtener todos los empleados (1 consulta)
     employees = db.query(models.User).filter(models.User.is_admin == False).all()
     
-    # Calcular primer y último día del mes
+    # Calcular primer y Ãºltimo dÃ­a del mes
     from calendar import monthrange
     _, last_day = monthrange(target_year, target_month)
     start_date = datetime(target_year, target_month, 1).date()
@@ -292,7 +292,7 @@ def export_payroll_excel(
     year: Optional[int] = Query(None),
     db: Session = Depends(get_db)
 ):
-    """Descarga el reporte de nómina/planilla en formato Excel (XLSX)."""
+    """Descarga el reporte de nÃ³mina/planilla en formato Excel (XLSX)."""
     data = get_payroll_summary(month, year, db)
     summary = data["summary"]
 
@@ -315,7 +315,7 @@ def export_payroll_excel(
         bottom=Side(style='thin', color='E2E8F0')
     )
 
-    headers = ["ID", "Empleado", "DNI", "Días Asistidos", "Total Horas Laboradas", "Puntuales", "Tardanzas", "Minutos Tardanza Acumulados"]
+    headers = ["ID", "Empleado", "DNI", "DÃ­as Asistidos", "Total Horas Laboradas", "Puntuales", "Tardanzas", "Minutos Tardanza Acumulados"]
     ws.append(headers)
 
     for col_idx in range(1, len(headers) + 1):
@@ -346,7 +346,7 @@ def export_payroll_excel(
             cell = ws.cell(row=row_idx, column=col_idx)
             cell.fill = row_fill
             cell.border = border
-            if col_idx in [1, 3, 4, 5, 6, 7, 8]: # Centrar datos numéricos
+            if col_idx in [1, 3, 4, 5, 6, 7, 8]: # Centrar datos numÃ©ricos
                 cell.alignment = centered_align
         row_idx += 1
 
@@ -375,16 +375,16 @@ def export_payroll_excel(
 
 
 # ==========================================
-# CONSULTA DNI PÚBLICA Y GRATUITA ($0 COSTO)
+# CONSULTA DNI PÃšBLICA Y GRATUITA ($0 COSTO)
 # ==========================================
 DNI_CACHE = {}
 
 def lookup_dni_peru(dni: str) -> dict:
     dni = dni.strip()
     if not dni.isdigit() or len(dni) != 8:
-        return {"success": False, "message": "El DNI debe tener exactamente 8 dígitos numéricos."}
+        return {"success": False, "message": "El DNI debe tener exactamente 8 dÃ­gitos numÃ©ricos."}
 
-    # Caché en memoria para evitar consultas repetidas y 0ms de respuesta
+    # CachÃ© en memoria para evitar consultas repetidas y 0ms de respuesta
     if dni in DNI_CACHE:
         return DNI_CACHE[dni]
 
@@ -413,7 +413,7 @@ def lookup_dni_peru(dni: str) -> dict:
                     full_name = raw_data.get("nombre", "").strip()
 
                 if not full_name:
-                    return {"success": False, "message": "DNI no encontrado en los padrones públicos."}
+                    return {"success": False, "message": "DNI no encontrado en los padrones pÃºblicos."}
 
                 result = {
                     "success": True,
@@ -427,7 +427,7 @@ def lookup_dni_peru(dni: str) -> dict:
                 return result
     except urllib.error.HTTPError as e:
         if e.code == 429:
-            return {"success": False, "message": "El servicio de RENIEC gratuito está ocupado momentáneamente. Ingrese el nombre de forma manual."}
+            return {"success": False, "message": "El servicio de RENIEC gratuito estÃ¡ ocupado momentÃ¡neamente. Ingrese el nombre de forma manual."}
         elif e.code in (404, 422):
             return {"success": False, "message": "DNI no encontrado en el registro nacional."}
         else:
@@ -438,12 +438,12 @@ def lookup_dni_peru(dni: str) -> dict:
 
 @protected_router.get("/lookup-dni/{dni}")
 def api_lookup_dni(dni: str):
-    """Consulta pública gratuita ($0) para autocompletar nombres y apellidos por DNI."""
+    """Consulta pÃºblica gratuita ($0) para autocompletar nombres y apellidos por DNI."""
     return lookup_dni_peru(dni)
 
 
 # ==========================================
-# GESTIÓN DE EMPLEADOS
+# GESTIÃ“N DE EMPLEADOS
 # ==========================================
 @protected_router.get("/employees")
 def list_employees(db: Session = Depends(get_db)):
@@ -479,23 +479,23 @@ def create_employee(
 
     if not name or len(name) < 3:
         raise HTTPException(status_code=400, detail="El nombre debe tener al menos 3 caracteres.")
-    if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\'\.]+$", name):
+    if not re.match(r"^[a-zA-ZÃ¡Ã©Ã­Ã³ÃºÃÃ‰ÃÃ“ÃšÃ±Ã‘\s\-\'\.]+$", name):
         raise HTTPException(status_code=400, detail="El nombre contiene caracteres no permitidos.")
 
     if not re.match(r"^\d{8}$", dni):
-        raise HTTPException(status_code=400, detail="El DNI debe tener exactamente 8 dígitos numéricos.")
+        raise HTTPException(status_code=400, detail="El DNI debe tener exactamente 8 dÃ­gitos numÃ©ricos.")
 
     if not password or len(password) < 6:
-        raise HTTPException(status_code=400, detail="La contraseña debe tener al menos 6 caracteres.")
+        raise HTTPException(status_code=400, detail="La contraseÃ±a debe tener al menos 6 caracteres.")
 
     if tolerance_minutes is not None and (tolerance_minutes < 0 or tolerance_minutes > 60):
         raise HTTPException(status_code=400, detail="La tolerancia debe estar entre 0 y 60 minutos.")
 
     if work_start_time and not re.match(r"^(?:[01]\d|2[0-3]):[0-5]\d$", work_start_time):
-        raise HTTPException(status_code=400, detail="El formato de la hora de entrada debe ser HH:MM (ej. 08:00) y válida.")
+        raise HTTPException(status_code=400, detail="El formato de la hora de entrada debe ser HH:MM (ej. 08:00) y vÃ¡lida.")
 
     if work_end_time and not re.match(r"^(?:[01]\d|2[0-3]):[0-5]\d$", work_end_time):
-        raise HTTPException(status_code=400, detail="El formato de la hora de salida debe ser HH:MM (ej. 17:00) y válida.")
+        raise HTTPException(status_code=400, detail="El formato de la hora de salida debe ser HH:MM (ej. 17:00) y vÃ¡lida.")
 
     existing = db.query(models.User).filter(models.User.dni == dni).first()
     if existing:
@@ -531,14 +531,14 @@ def update_employee(
         name = data.name.strip()
         if len(name) < 3:
             raise HTTPException(status_code=400, detail="El nombre debe tener al menos 3 caracteres.")
-        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-\'\.]+$", name):
+        if not re.match(r"^[a-zA-ZÃ¡Ã©Ã­Ã³ÃºÃÃ‰ÃÃ“ÃšÃ±Ã‘\s\-\'\.]+$", name):
             raise HTTPException(status_code=400, detail="El nombre contiene caracteres no permitidos.")
         user.name = name
 
     if data.dni is not None:
         dni = data.dni.strip()
         if not re.match(r"^\d{8}$", dni):
-            raise HTTPException(status_code=400, detail="El DNI debe tener exactamente 8 dígitos numéricos.")
+            raise HTTPException(status_code=400, detail="El DNI debe tener exactamente 8 dÃ­gitos numÃ©ricos.")
         existing = db.query(models.User).filter(models.User.dni == dni, models.User.id != employee_id).first()
         if existing:
             raise HTTPException(status_code=400, detail="Ya existe otro usuario con ese DNI.")
@@ -546,7 +546,7 @@ def update_employee(
 
     if data.password is not None and data.password != "":
         if len(data.password) < 6:
-            raise HTTPException(status_code=400, detail="La nueva contraseña debe tener al menos 6 caracteres.")
+            raise HTTPException(status_code=400, detail="La nueva contraseÃ±a debe tener al menos 6 caracteres.")
         user.password_hash = auth.get_password_hash(data.password)
 
     if data.tolerance_minutes is not None:
@@ -556,12 +556,12 @@ def update_employee(
 
     if data.work_start_time is not None:
         if not re.match(r"^(?:[01]\d|2[0-3]):[0-5]\d$", data.work_start_time):
-            raise HTTPException(status_code=400, detail="El formato de hora de entrada debe ser HH:MM válida.")
+            raise HTTPException(status_code=400, detail="El formato de hora de entrada debe ser HH:MM vÃ¡lida.")
         user.work_start_time = data.work_start_time
 
     if data.work_end_time is not None:
         if not re.match(r"^(?:[01]\d|2[0-3]):[0-5]\d$", data.work_end_time):
-            raise HTTPException(status_code=400, detail="El formato de hora de salida debe ser HH:MM válida.")
+            raise HTTPException(status_code=400, detail="El formato de hora de salida debe ser HH:MM vÃ¡lida.")
         user.work_end_time = data.work_end_time
         
     if data.is_active is not None:
@@ -583,11 +583,11 @@ def delete_employee(employee_id: int, db: Session = Depends(get_db)):
     user.is_active = False
     db.query(models.Device).filter(models.Device.user_id == user.id).update({"is_approved": False})
     db.commit()
-    return {"message": "Empleado inactivado exitosamente (borrado lógico)."}
+    return {"message": "Empleado inactivado exitosamente (borrado lÃ³gico)."}
 
 
 # ==========================================
-# GESTIÓN DE DISPOSITIVOS (Aprobar / Bloquear / Eliminar)
+# GESTIÃ“N DE DISPOSITIVOS (Aprobar / Bloquear / Eliminar)
 # ==========================================
 @protected_router.get("/devices")
 def list_devices(db: Session = Depends(get_db)):
@@ -666,7 +666,7 @@ def list_justifications(
     
     TYPE_LABELS = {
         "VACACIONES": "Vacaciones",
-        "DESCANSO_MEDICO": "Descanso Médico",
+        "DESCANSO_MEDICO": "Descanso MÃ©dico",
         "PERMISO": "Permiso Personal",
         "FERIADO": "Feriado",
         "OTRO": "Otro"
@@ -674,7 +674,7 @@ def list_justifications(
     
     result = []
     for j in justifications:
-        # Calcular días
+        # Calcular dÃ­as
         from datetime import datetime as dt_cls
         try:
             d1 = dt_cls.strptime(j.start_date, "%Y-%m-%d").date()
@@ -705,7 +705,7 @@ def create_justification(data: JustificationCreate, db: Session = Depends(get_db
         raise HTTPException(status_code=404, detail="Empleado no encontrado")
     
     if data.justification_type not in ["VACACIONES", "DESCANSO_MEDICO", "PERMISO", "FERIADO", "OTRO"]:
-        raise HTTPException(status_code=400, detail="Tipo de justificación inválido")
+        raise HTTPException(status_code=400, detail="Tipo de justificaciÃ³n invÃ¡lido")
     
     # Validar fechas
     try:
@@ -715,7 +715,7 @@ def create_justification(data: JustificationCreate, db: Session = Depends(get_db
         if d2 < d1:
             raise HTTPException(status_code=400, detail="La fecha fin no puede ser anterior a la fecha inicio")
     except ValueError:
-        raise HTTPException(status_code=400, detail="Formato de fecha inválido (use YYYY-MM-DD)")
+        raise HTTPException(status_code=400, detail="Formato de fecha invÃ¡lido (use YYYY-MM-DD)")
     
     new_justification = models.Justification(
         user_id=data.employee_id,
@@ -727,32 +727,32 @@ def create_justification(data: JustificationCreate, db: Session = Depends(get_db
     db.add(new_justification)
     db.commit()
     db.refresh(new_justification)
-    return {"message": "Justificación registrada exitosamente", "id": new_justification.id}
+    return {"message": "JustificaciÃ³n registrada exitosamente", "id": new_justification.id}
 
 @protected_router.delete("/justifications/{justification_id}")
 def delete_justification(justification_id: int, db: Session = Depends(get_db)):
     j = db.query(models.Justification).filter(models.Justification.id == justification_id).first()
     if not j:
-        raise HTTPException(status_code=404, detail="Justificación no encontrada")
+        raise HTTPException(status_code=404, detail="JustificaciÃ³n no encontrada")
     db.delete(j)
     db.commit()
-    return {"message": "Justificación eliminada"}
+    return {"message": "JustificaciÃ³n eliminada"}
 
 
 # ==========================================
-# REPORTES: DATOS PARA GRÁFICOS DEL DASHBOARD
+# REPORTES: DATOS PARA GRÃFICOS DEL DASHBOARD
 # ==========================================
 
 @protected_router.get("/reports/weekly-detail")
 def get_weekly_detail(db: Session = Depends(get_db)):
-    """Devuelve puntuales y tardanzas por día de los últimos 7 días para el gráfico."""
+    """Devuelve puntuales y tardanzas por dÃ­a de los Ãºltimos 7 dÃ­as para el grÃ¡fico."""
     local_now = datetime.now(timezone.utc) - timedelta(hours=5)
     today = local_now.date()
     days = []
 
     for i in range(6, -1, -1):
         day = today - timedelta(days=i)
-        day_names_es = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+        day_names_es = ["Lun", "Mar", "MiÃ©", "Jue", "Vie", "SÃ¡b", "Dom"]
         day_name = day_names_es[day.weekday()]
 
         puntuales = db.query(models.AttendanceRecord).filter(
@@ -792,7 +792,7 @@ class ManualAttendance(BaseModel):
 @protected_router.post("/attendance/manual")
 def add_manual_attendance(data: ManualAttendance, db: Session = Depends(get_db), current_admin: models.User = Depends(auth.get_current_admin_user)):
     if not auth.verify_password(data.admin_password, current_admin.password_hash):
-        raise HTTPException(status_code=401, detail="Contraseña de administrador incorrecta")
+        raise HTTPException(status_code=401, detail="ContraseÃ±a de administrador incorrecta")
 
     user = db.query(models.User).filter(models.User.id == data.employee_id).first()
     if not user:
@@ -801,7 +801,7 @@ def add_manual_attendance(data: ManualAttendance, db: Session = Depends(get_db),
     try:
         dt_local = datetime.fromisoformat(data.timestamp.replace("Z", "+00:00"))
     except ValueError:
-        raise HTTPException(status_code=400, detail="Formato de fecha inválido")
+        raise HTTPException(status_code=400, detail="Formato de fecha invÃ¡lido")
         
     LOCAL_TZ = timezone(timedelta(hours=-5))
     if dt_local.tzinfo is None:
@@ -866,8 +866,8 @@ def list_attendance(
     start_date: Optional[str] = Query(None, description="Fecha inicio YYYY-MM-DD"),
     end_date: Optional[str] = Query(None, description="Fecha fin YYYY-MM-DD"),
     employee_id: Optional[int] = Query(None),
-    page: int = Query(1, ge=1, description="Número de página"),
-    limit: int = Query(50, ge=1, le=200, description="Registros por página"),
+    page: int = Query(1, ge=1, description="NÃºmero de pÃ¡gina"),
+    limit: int = Query(50, ge=1, le=200, description="Registros por pÃ¡gina"),
     db: Session = Depends(get_db)
 ):
     query = db.query(models.AttendanceRecord).options(
@@ -876,14 +876,14 @@ def list_attendance(
     )
 
     if start_date:
-        # Convertir inicio del día Perú (UTC-5) a UTC para buscar
+        # Convertir inicio del dÃ­a PerÃº (UTC-5) a UTC para buscar
         # 00:00 Peru = 05:00 UTC
         start_utc = datetime.strptime(start_date, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(hours=5)
         query = query.filter(models.AttendanceRecord.timestamp >= start_utc)
     
     if end_date:
-        # Convertir fin del día Perú a UTC
-        # 23:59 Peru = al día siguiente 04:59:59 UTC -> < 05:00 UTC del día siguiente
+        # Convertir fin del dÃ­a PerÃº a UTC
+        # 23:59 Peru = al dÃ­a siguiente 04:59:59 UTC -> < 05:00 UTC del dÃ­a siguiente
         end_utc = datetime.strptime(end_date, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1, hours=5)
         query = query.filter(models.AttendanceRecord.timestamp < end_utc)
         
@@ -905,6 +905,8 @@ def list_attendance(
             "status": record.status or ("PUNTUAL" if record.record_type == "ENTRADA" else "SALIDA"),
             "tardiness_minutes": record.tardiness_minutes or 0,
             "hours_worked": record.hours_worked,
+            "ip_address": record.ip_address,
+            "network_validated": record.network_validated,
             "timestamp": ts.isoformat() if ts else None,
             "device_name": record.device.device_name if record.device else "Registro Manual",
         })
@@ -963,7 +965,7 @@ def export_excel(
         bottom=Side(style='thin', color='E2E8F0')
     )
 
-    headers = ["ID", "Empleado", "DNI", "Tipo", "Estado", "Tardanza (min)", "Horas Trabajadas", "Fecha", "Hora", "Dispositivo"]
+    headers = ["ID", "Empleado", "DNI", "Tipo", "Estado", "Tardanza (min)", "Horas Trabajadas", "Fecha", "Hora", "Dispositivo", "Red / Ubicación"]
     ws.append(headers)
 
     # Aplicar estilos de cabecera
@@ -977,8 +979,10 @@ def export_excel(
     row_idx = 2
     for record in records:
         ts = record.timestamp
-        # Convertir a hora de Perú para exportar (UTC-5)
+        # Convertir a hora de PerÃº para exportar (UTC-5)
         local_ts = ts - timedelta(hours=5) if ts.tzinfo is None else ts.astimezone(timezone(timedelta(hours=-5)))
+        
+        network_str = "Verificado (Oficina)" if record.network_validated else (f"No Verificado (IP: {record.ip_address})" if record.ip_address else "Manual / Antiguo")
         
         row_data = [
             record.id,
@@ -991,6 +995,7 @@ def export_excel(
             local_ts.strftime("%Y-%m-%d"),
             local_ts.strftime("%H:%M:%S"),
             record.device.device_name if record.device else "Registro Manual",
+            network_str
         ]
         ws.append(row_data)
 
@@ -1002,7 +1007,7 @@ def export_excel(
             cell = ws.cell(row=row_idx, column=col_idx)
             cell.fill = row_fill
             cell.border = border
-            if col_idx in [1, 3, 4, 5, 6, 7, 8, 9]: # Centrar datos numéricos/fechas/estados
+            if col_idx in [1, 3, 4, 5, 6, 7, 8, 9]: # Centrar datos numÃ©ricos/fechas/estados
                 cell.alignment = centered_align
         
         row_idx += 1
@@ -1033,7 +1038,7 @@ def export_excel(
 
 
 # ==========================================
-# CONFIGURACIÓN DE RED Y WI-FI DE LA EMPRESA
+# CONFIGURACIÃ“N DE RED Y WI-FI DE LA EMPRESA
 # ==========================================
 class NetworkSettingUpdate(BaseModel):
     wifi_validation_enabled: bool
@@ -1089,7 +1094,8 @@ def update_network_settings(data: NetworkSettingUpdate, db: Session = Depends(ge
     db.refresh(setting)
 
     return {
-        "message": "Configuración de red guardada exitosamente.",
+        "message": "ConfiguraciÃ³n de red guardada exitosamente.",
         "wifi_validation_enabled": setting.wifi_validation_enabled,
         "allowed_ips": setting.allowed_ips
     }
+

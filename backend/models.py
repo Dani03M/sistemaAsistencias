@@ -57,6 +57,9 @@ class AttendanceRecord(Base):
     tardiness_minutes: Mapped[int] = mapped_column(default=0)  # Minutos de retraso
     hours_worked: Mapped[Optional[float]] = mapped_column(nullable=True, default=None)  # Horas laboradas en la jornada
     
+    ip_address: Mapped[Optional[str]] = mapped_column(String(50), nullable=True) # Dirección IP al momento de marcar
+    network_validated: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True) # Si la IP coincidía con la lista permitida
+    
     timestamp: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc), index=True
     )
