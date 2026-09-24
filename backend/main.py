@@ -256,12 +256,13 @@ if not KIOSK_API_KEY:
 # ==========================================
 
 class KioskAuthReq(BaseModel):
-    dni: str
+    email: str
     password: str
 
 @app.post("/api/kiosk/authorize")
 def authorize_kiosk(data: KioskAuthReq, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.dni == data.dni, models.User.is_admin == True).first()
+    email = data.email.strip().lower()
+    user = db.query(models.User).filter(models.User.email.ilike(email), models.User.is_admin == True).first()
     if not user or not auth.verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Credenciales de administrador inválidas.")
     return {"kiosk_api_key": KIOSK_API_KEY}

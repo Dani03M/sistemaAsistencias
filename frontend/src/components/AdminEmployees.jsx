@@ -240,6 +240,8 @@ export default function AdminEmployees() {
       id: emp.id, 
       name: emp.name, 
       dni: emp.dni, 
+      email: emp.email || '',
+      is_admin: emp.is_admin,
       password: '',
       work_start_time: emp.work_start_time || '08:00',
       work_end_time: emp.work_end_time || '17:00',
@@ -253,7 +255,8 @@ export default function AdminEmployees() {
 
   const filteredEmployees = employees.filter(emp => 
     emp.name.toLowerCase().includes(search.toLowerCase()) || 
-    emp.dni.toLowerCase().includes(search.toLowerCase())
+    emp.dni.toLowerCase().includes(search.toLowerCase()) ||
+    (emp.email || '').toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -304,7 +307,7 @@ export default function AdminEmployees() {
                 <tr className="bg-slate-50 text-slate-600 text-sm font-medium border-b border-slate-200">
                   <th className="px-3 sm:px-6 py-3">ID</th>
                   <th className="px-3 sm:px-6 py-3">Nombre</th>
-                  <th className="px-3 sm:px-6 py-3">DNI</th>
+                  <th className="px-3 sm:px-6 py-3">DNI / Correo</th>
                   <th className="px-3 sm:px-6 py-3">Horario Entrada</th>
                   <th className="px-3 sm:px-6 py-3">Tolerancia</th>
                   <th className="px-3 sm:px-6 py-3 text-center">Estado</th>
@@ -319,7 +322,7 @@ export default function AdminEmployees() {
                     <tr key={emp.id} className="hover:bg-slate-50 transition-colors duration-150">
                       <td className="px-3 sm:px-6 py-4 font-mono text-sm text-slate-500">{emp.id}</td>
                       <td className="px-3 sm:px-6 py-4 font-medium">{emp.name}</td>
-                      <td className="px-3 sm:px-6 py-4">{emp.dni}</td>
+                      <td className="px-3 sm:px-6 py-4">{emp.is_admin ? (emp.email || emp.dni) : emp.dni}</td>
                       <td className="px-3 sm:px-6 py-4">
                         <span className="font-semibold text-slate-800">{emp.work_start_time || '08:00'}</span>
                       </td>
@@ -554,7 +557,19 @@ export default function AdminEmployees() {
               <button onClick={() => setEditModal(false)}><X className="w-5 h-5 text-slate-400" /></button>
             </div>
             <form onSubmit={handleEditEmployee} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
-              {/* DNI con opción de consulta RENIEC */}
+              {/* Identificador: Correo para Admin, DNI para Empleado */}
+              {editData.is_admin ? (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Correo del Administrador</label>
+                  <input 
+                    type="email" 
+                    disabled
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed" 
+                    value={editData.email} 
+                  />
+                  <p className="mt-1 text-xs text-slate-400">El correo se gestiona desde Google o la configuración del sistema.</p>
+                </div>
+              ) : (
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <label className="block text-sm font-medium text-slate-700">DNI (8 dígitos)</label>
@@ -610,6 +625,7 @@ export default function AdminEmployees() {
                   </p>
                 )}
               </div>
+              )}
 
               {/* Nombre completo */}
               <div>

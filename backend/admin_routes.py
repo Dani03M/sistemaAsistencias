@@ -454,6 +454,7 @@ def list_employees(db: Session = Depends(get_db)):
             "id": emp.id,
             "name": emp.name,
             "dni": emp.dni,
+            "email": emp.email,
             "is_admin": emp.is_admin,
             "is_active": emp.is_active,
             "work_start_time": emp.work_start_time or "08:00",
