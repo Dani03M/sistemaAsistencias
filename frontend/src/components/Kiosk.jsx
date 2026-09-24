@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { Home, Maximize2, Minimize2 } from 'lucide-react';
+import { Home, Maximize2, Minimize2, ShieldCheck, Loader2 } from 'lucide-react';
 
 const API_URL = '/api';
 
@@ -11,18 +11,42 @@ const Kiosk = () => {
   const [timeLeft, setTimeLeft] = useState(10);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [error, setError] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  
+  // Auth Form State
+  const [authDni, setAuthDni] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+
+  const handleAuthorize = async (e) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError('');
+    try {
+      const response = await axios.post(`${API_URL}/kiosk/authorize`, {
+        dni: authDni,
+        password: authPassword
+      });
+      if (response.data && response.data.kiosk_api_key) {
+        localStorage.setItem('kiosk_api_key', response.data.kiosk_api_key);
+        setIsAuthorized(true);
+      }
+    } catch (err) {
+      setAuthError('Credenciales incorrectas o sin permisos de administrador.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   const fetchQrData = async () => {
     try {
       let apiKey = localStorage.getItem('kiosk_api_key');
       if (!apiKey) {
-        apiKey = prompt("Ingrese la API Key del Kiosco para autorizar este dispositivo:");
-        if (apiKey) {
-            localStorage.setItem('kiosk_api_key', apiKey);
-        } else {
-            throw new Error("API Key requerida");
-        }
+        setIsAuthorized(false);
+        return;
       }
+      setIsAuthorized(true);
       const response = await axios.get(`${API_URL}/kiosk/qr-data`, {
         headers: {
           'X-Kiosk-Key': apiKey
@@ -35,6 +59,7 @@ const Kiosk = () => {
       console.error("Error obteniendo el código QR del servidor", err);
       if (err.response && err.response.status === 403) {
         localStorage.removeItem('kiosk_api_key');
+        setIsAuthorized(false);
       }
       setError(true);
       setTimeLeft(5); // Retry after 5 seconds on error
@@ -53,6 +78,8 @@ const Kiosk = () => {
   }, []);
 
   useEffect(() => {
+    if (!isAuthorized) return;
+    
     if (timeLeft <= 0) {
       fetchQrData();
       return;
@@ -63,7 +90,7 @@ const Kiosk = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timeLeft, isAuthorized]);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -85,6 +112,65 @@ const Kiosk = () => {
 
   const progress = Math.max(0, (timeLeft / (error ? 5 : 10)) * 100);
 
+  // VISTA DE AUTORIZACIÓN (LOGIN)
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+          <div className="bg-slate-900 p-6 text-center">
+            <ShieldCheck className="w-12 h-12 text-blue-400 mx-auto mb-3" />
+            <h2 className="text-xl font-bold text-white">Autorizar Kiosco</h2>
+            <p className="text-slate-400 text-sm mt-1">Ingresa tus credenciales de Administrador para activar esta pantalla.</p>
+          </div>
+          <div className="p-8">
+            <form onSubmit={handleAuthorize} className="space-y-5">
+              {authError && (
+                <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 text-center">
+                  {authError}
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">DNI del Administrador</label>
+                <input
+                  type="text"
+                  required
+                  value={authDni}
+                  onChange={(e) => setAuthDni(e.target.value)}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+                  placeholder="Ej. 71438288"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
+                <input
+                  type="password"
+                  required
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+                  placeholder="••••••••"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full flex justify-center items-center py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm shadow-blue-500/30 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {authLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Autorizar Dispositivo'}
+              </button>
+            </form>
+            <div className="mt-6 text-center">
+              <Link to="/" className="text-sm text-slate-500 hover:text-blue-600 transition-colors font-medium">
+                &larr; Volver al Menú Principal
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // VISTA DEL KIOSCO (CÓDIGO QR)
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col items-center justify-between p-6 select-none relative overflow-hidden">
       {/* Botón de Pantalla Completa y Menú */}
@@ -131,7 +217,6 @@ const Kiosk = () => {
         </div>
       </div>
 
-      {/* Reloj Gigante Principal */}
       {/* Reloj Gigante Principal */}
       <div className="flex flex-col items-center justify-center my-6 z-10 w-full">
         <p className="text-[5rem] md:text-[8rem] font-bold text-white tracking-tighter drop-shadow-2xl leading-none font-sans">
