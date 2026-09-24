@@ -56,7 +56,7 @@ const Kiosk = () => {
       setTimeLeft(response.data.refresh_interval_seconds);
       setError(false);
     } catch (err) {
-      console.error("Error obteniendo el cÃ³digo QR del servidor", err);
+      console.error("Error obteniendo el código QR del servidor", err);
       if (err.response && err.response.status === 403) {
         localStorage.removeItem('kiosk_api_key');
         setIsAuthorized(false);
@@ -112,7 +112,7 @@ const Kiosk = () => {
 
   const progress = Math.max(0, (timeLeft / (error ? 5 : 10)) * 100);
 
-  // VISTA DE AUTORIZACIÃ“N (LOGIN)
+  // VISTA DE AUTORIZACIí“N (LOGIN)
   if (!isAuthorized) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4">
@@ -141,7 +141,7 @@ const Kiosk = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">ContraseÃ±a</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
                 <input
                   type="password"
                   required
@@ -161,7 +161,7 @@ const Kiosk = () => {
             </form>
             <div className="mt-6 text-center">
               <Link to="/" className="text-sm text-slate-500 hover:text-blue-600 transition-colors font-medium">
-                &larr; Volver al MenÃº Principal
+                &larr; Volver al Menú Principal
               </Link>
             </div>
           </div>
@@ -170,10 +170,10 @@ const Kiosk = () => {
     );
   }
 
-  // VISTA DEL KIOSCO (CÃ“DIGO QR)
+  // VISTA DEL KIOSCO (Cí“DIGO QR)
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col items-center justify-between p-6 select-none relative overflow-hidden">
-      {/* BotÃ³n de Pantalla Completa y MenÃº */}
+      {/* Botón de Pantalla Completa y Menú */}
       <div className="w-full max-w-5xl flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
@@ -183,7 +183,7 @@ const Kiosk = () => {
           </div>
           <div>
             <h2 className="text-white font-bold text-base leading-tight tracking-wide">Terminal de Asistencia</h2>
-            <p className="text-xs text-slate-400">Escaneo Seguro con QR DinÃ¡mico</p>
+            <p className="text-xs text-slate-400">Escaneo Seguro con QR Dinámico</p>
           </div>
         </div>
 
@@ -191,10 +191,10 @@ const Kiosk = () => {
           <Link
             to="/"
             className="text-xs text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
-            title="Volver al MenÃº Principal"
+            title="Volver al Menú Principal"
           >
             <Home className="w-3.5 h-3.5 text-blue-400" />
-            <span>MenÃº Principal</span>
+            <span>Menú Principal</span>
           </Link>
 
           <button
@@ -243,7 +243,7 @@ const Kiosk = () => {
                 <svg className="w-16 h-16 text-red-500 mb-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
-                <p className="text-slate-800 text-lg font-bold">Error de ConexiÃ³n</p>
+                <p className="text-slate-800 text-lg font-bold">Error de Conexión</p>
                 <p className="text-slate-500 text-sm mt-1">Reconectando al servidor...</p>
               </div>
             ) : !totpCode ? (
@@ -279,10 +279,10 @@ const Kiosk = () => {
         </div>
       </div>
 
-      {/* InstrucciÃ³n inferior */}
+      {/* Instrucción inferior */}
       <div className="text-center z-10 pb-4 mt-6">
         <p className="text-indigo-200 text-base font-medium tracking-wide">
-          Abre la app en tu celular y escanea este cÃ³digo para registrar tu asistencia
+          Abre la app en tu celular y escanea este código para registrar tu asistencia
         </p>
       </div>
     </div>
@@ -290,4 +290,5 @@ const Kiosk = () => {
 };
 
 export default Kiosk;
+
 

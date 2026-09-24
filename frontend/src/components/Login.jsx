@@ -15,7 +15,7 @@ export default function Login() {
   const [status, setStatus] = useState(null);
   const navigate = useNavigate();
 
-  // RedirecciÃ³n automÃ¡tica si ya hay token
+  // Redirección automática si ya hay token
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (token) {
@@ -39,7 +39,7 @@ export default function Login() {
     if (!password || password.trim().length === 0) {
       setStatus({
         type: 'error',
-        message: 'Por favor ingresa tu contraseÃ±a.'
+        message: 'Por favor ingresa tu contraseña.'
       });
       return;
     }
@@ -52,7 +52,7 @@ export default function Login() {
       // Detectar modelo real del dispositivo
       let deviceName = 'Dispositivo desconocido';
       try {
-        // Chrome/Edge en Android expone el modelo real del telÃ©fono
+        // Chrome/Edge en Android expone el modelo real del teléfono
         if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
           const hints = await navigator.userAgentData.getHighEntropyValues(['model', 'platform', 'platformVersion']);
           const model = hints.model || '';
@@ -63,7 +63,7 @@ export default function Login() {
             deviceName = platform;
           }
         } else {
-          // Fallback parsing de userAgent estÃ¡ndar
+          // Fallback parsing de userAgent estándar
           const ua = navigator.userAgent;
           if (/Android/i.test(ua)) {
             const match = ua.match(/Android[^;]+;\s*([^;)]+)\s*[;)]/);
@@ -91,13 +91,13 @@ export default function Login() {
       const data = response.data;
 
       if (data.device_approved) {
-        // Solo guardar token si el dispositivo estÃ¡ aprobado
+        // Solo guardar token si el dispositivo está aprobado
         if (data.access_token) {
           localStorage.setItem('access_token', data.access_token);
         }
         setStatus({
           type: 'success',
-          message: 'Dispositivo aprobado. Entrando al escÃ¡ner...'
+          message: 'Dispositivo aprobado. Entrando al escáner...'
         });
         setTimeout(() => {
           navigate('/scanner', { replace: true });
@@ -105,7 +105,7 @@ export default function Login() {
       } else {
         setStatus({
           type: 'warning',
-          message: 'Dispositivo pendiente de aprobaciÃ³n por RRHH.'
+          message: 'Dispositivo pendiente de aprobación por RRHH.'
         });
       }
       
@@ -123,7 +123,7 @@ export default function Login() {
           errorMessage = 'Usuario deshabilitado o no autorizado.';
         }
       } else if (error.request) {
-        errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexiÃ³n.';
+        errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
       }
       
       setStatus({
@@ -147,7 +147,7 @@ export default function Login() {
           className="inline-flex items-center gap-2 text-indigo-300/70 hover:text-white text-sm font-medium transition-colors group"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          <span>Volver al MenÃº Principal</span>
+          <span>Volver al Menú Principal</span>
         </Link>
       </div>
 
@@ -196,7 +196,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-2">ContraseÃ±a</label>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">Contraseña</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-indigo-400/70" />
@@ -206,7 +206,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-10 pr-3 py-3 border border-slate-700/60 rounded-xl bg-slate-900/50 text-white focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 placeholder-slate-600 transition-colors shadow-inner"
-                  placeholder="Tu contraseÃ±a"
+                  placeholder="Tu contraseña"
                   disabled={loading}
                 />
               </div>
@@ -220,7 +220,7 @@ export default function Login() {
               {loading ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Iniciando sesiÃ³n...
+                  Iniciando sesión...
                 </>
               ) : (
                 <>
@@ -243,6 +243,7 @@ export default function Login() {
     </div>
   );
 }
+
 
 
 
