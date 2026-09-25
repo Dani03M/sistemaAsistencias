@@ -1,4 +1,4 @@
-﻿import os
+import os
 from typing import Optional
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -22,7 +22,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API de Asistencia Local", version="1.0.0")
 
-# Registrar rutas de administraciíƒÆ’í‚Â³n
+# Registrar rutas de administración
 app.include_router(admin_routes.router)
 app.include_router(admin_routes.protected_router)
 
@@ -37,7 +37,7 @@ app.add_middleware(
 )
 
 # ==========================================
-# RUTAS DE AUTENTICACIíƒÆ’í¢â‚¬Å“N Y DISPOSITIVOS
+# RUTAS DE AUTENTICACIÓN Y DISPOSITIVOS
 # ==========================================
 @app.post("/api/auth/login", response_model=schemas.Token)
 def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
@@ -50,9 +50,9 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="DNI/Correo o contraseña incorrectos")
         
     if not user.is_active:
-        raise HTTPException(status_code=403, detail="Tu cuenta estíƒÆ’í‚Â¡ desactivada. Contacta a RRHH.")
+        raise HTTPException(status_code=403, detail="Tu cuenta está desactivada. Contacta a RRHH.")
 
-    # 2. Manejo de Device Binding íƒÂ¢í¢â€šÂ¬í¢â‚¬Â MíƒÆ’í‚ÂXIMO 1 DISPOSITIVO POR EMPLEADO
+    # 2. Manejo de Device Binding - MÁXIMO 1 DISPOSITIVO POR EMPLEADO
     existing_device = db.query(models.Device).filter(
         models.Device.user_id == user.id
     ).first()
@@ -60,14 +60,14 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
     if existing_device:
         # Ya tiene un dispositivo registrado
         if existing_device.fingerprint == login_data.device_fingerprint:
-            # Es el MISMO dispositivo íƒÂ¢í¢â‚¬Â í¢â‚¬â„¢ permitir login
-            # Actualizar nombre del dispositivo si cambiíƒÆ’í‚Â³
+            # Es el MISMO dispositivo -> permitir login
+            # Actualizar nombre del dispositivo si cambió
             if login_data.device_name and login_data.device_name != existing_device.device_name:
                 existing_device.device_name = login_data.device_name
                 db.commit()
             device = existing_device
         else:
-            # Es OTRO dispositivo íƒÂ¢í¢â‚¬Â í¢â‚¬â„¢ RECHAZAR
+            # Es OTRO dispositivo -> RECHAZAR
             raise HTTPException(
                 status_code=403, 
                 detail="Ya tienes un dispositivo vinculado. Contacta a RRHH para cambiarlo."
@@ -78,10 +78,10 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
         if fingerprint_owner:
             raise HTTPException(
                 status_code=403,
-                detail="Este dispositivo ya estíƒÆ’í‚Â¡ vinculado a otro empleado. Contacta a RRHH."
+                detail="Este dispositivo ya está vinculado a otro empleado. Contacta a RRHH."
             )
 
-        # Primera vez íƒÂ¢í¢â‚¬Â í¢â‚¬â„¢ registrar dispositivo como "Pendiente"
+        # Primera vez -> registrar dispositivo como "Pendiente"
         device = models.Device(
             user_id=user.id,
             fingerprint=login_data.device_fingerprint,
@@ -92,7 +92,7 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(device)
 
-    # 3. Crear token de sesiíƒÆ’í‚Â³n solo si el dispositivo estíƒÆ’í‚Â¡ aprobado
+    # 3. Crear token de sesión solo si el dispositivo está aprobado
     access_token = None
     if device.is_approved:
         access_token = auth.create_access_token(data={"sub": user.dni, "device": device.fingerprint})
@@ -108,8 +108,8 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
 # ==========================================
 # RUTAS DEL PORTAL DEL EMPLEADO
 # ==========================================
-LOCAL_TZ = timezone(timedelta(hours=-5))  # Zona horaria PeríƒÆ’í‚Âº (UTC-5)
-ATTENDANCE_COOLDOWN_MINUTES = 15  # Tiempo míƒÆ’í‚Â­nimo de espera entre marcaciones consecutivas (Anti-Doble MarcaciíƒÆ’í‚Â³n)
+LOCAL_TZ = timezone(timedelta(hours=-5))  # Zona horaria Perú (UTC-5)
+ATTENDANCE_COOLDOWN_MINUTES = 15  # Tiempo mínimo de espera entre marcaciones consecutivas (Anti-Doble Marcación)
 
 @app.get("/api/employee/me")
 def get_employee_me(user: models.User = Depends(auth.get_current_user)):
@@ -129,14 +129,14 @@ class EmployeeChangePassword(BaseModel):
 @app.put("/api/employee/change-password")
 def change_employee_password(data: EmployeeChangePassword, user: models.User = Depends(auth.get_current_user), db: Session = Depends(get_db)):
     if not auth.verify_password(data.current_password, user.password_hash):
-        raise HTTPException(status_code=401, detail="La contraseíƒÆ’í‚Â±a actual es incorrecta.")
+        raise HTTPException(status_code=401, detail="La contraseña actual es incorrecta.")
     
     if len(data.new_password) < 6:
-        raise HTTPException(status_code=400, detail="La nueva contraseíƒÆ’í‚Â±a debe tener al menos 6 caracteres.")
+        raise HTTPException(status_code=400, detail="La nueva contraseña debe tener al menos 6 caracteres.")
         
     user.password_hash = auth.get_password_hash(data.new_password)
     db.commit()
-    return {"message": "ContraseíƒÆ’í‚Â±a actualizada exitosamente."}
+    return {"message": "Contraseña actualizada exitosamente."}
 
 @app.get("/api/employee/today-status")
 def get_employee_today_status(user: models.User = Depends(auth.get_current_user), db: Session = Depends(get_db)):
@@ -157,7 +157,7 @@ def get_employee_today_status(user: models.User = Depends(auth.get_current_user)
 
     last_record = records_today[-1] if records_today else None
 
-    # CíƒÆ’í‚Â¡lculo de cooldown
+    # Cálculo de cooldown
     cooldown_seconds_remaining = 0
     if last_record:
         last_ts = last_record.timestamp if last_record.timestamp.tzinfo else last_record.timestamp.replace(tzinfo=timezone.utc)
@@ -267,7 +267,7 @@ def authorize_kiosk(data: KioskAuthReq, db: Session = Depends(get_db)):
     email = data.email.strip().lower()
     user = db.query(models.User).filter(models.User.email.ilike(email), models.User.is_admin == True).first()
     if not user or not auth.verify_password(data.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Credenciales de administrador invíƒÆ’í‚Â¡lidas.")
+        raise HTTPException(status_code=401, detail="Credenciales de administrador inválidas.")
     return {"kiosk_api_key": KIOSK_API_KEY}
 
 @app.get("/api/kiosk/qr-data")
@@ -276,11 +276,11 @@ def get_kiosk_qr(
     db: Session = Depends(get_db),
     x_kiosk_key: Optional[str] = Header(None, alias="X-Kiosk-Key")
 ):
-    # 1. Validar clave de autorizaciíƒÆ’í‚Â³n del Kiosco
+    # 1. Validar clave de autorización del Kiosco
     if not x_kiosk_key or x_kiosk_key != KIOSK_API_KEY:
         raise HTTPException(status_code=403, detail="Acceso no autorizado al terminal Kiosco.")
 
-    # 2. Validar tambiíƒÆ’í‚Â©n red Wi-Fi si estíƒÆ’í‚Â¡ activada
+    # 2. Validar también red Wi-Fi si está activada
     network_setting = db.query(models.NetworkSetting).first()
     if network_setting and network_setting.wifi_validation_enabled:
         client_ip = admin_routes.get_client_ip(request)
@@ -291,7 +291,7 @@ def get_kiosk_qr(
                 detail=f"Red no autorizada ({client_ip}) para terminal Kiosco."
             )
 
-    # Devuelve el cíƒÆ’í‚Â³digo matemíƒÆ’í‚Â¡tico (TOTP) de este exacto momento.
+    # Devuelve el código matemático (TOTP) de este exacto momento.
     current_code = auth.get_current_qr_data()
     return {"totp_code": current_code, "refresh_interval_seconds": 10}
 
@@ -326,21 +326,21 @@ def scan_attendance(
         else:
             is_network_validated = is_ip_ok
 
-    # 1. Validar el QR DiníƒÆ’í‚Â¡mico (Antifraude 1)
+    # 1. Validar el QR Dinámico (Antifraude 1)
     if not auth.verify_qr_totp(scan_data.totp_code):
-        raise HTTPException(status_code=400, detail="CíƒÆ’í‚Â³digo QR expirado o invíƒÆ’í‚Â¡lido. Intenta de nuevo.")
+        raise HTTPException(status_code=400, detail="Código QR expirado o inválido. Intenta de nuevo.")
 
-    # 2. Validar que el dispositivo estíƒÆ’í‚Â© aprobado (Antifraude 2)
+    # 2. Validar que el dispositivo esté aprobado (Antifraude 2)
     device = db.query(models.Device).filter(models.Device.fingerprint == scan_data.device_fingerprint).first()
     if not device:
         raise HTTPException(status_code=403, detail="Dispositivo no reconocido.")
     if not device.is_approved:
-        raise HTTPException(status_code=403, detail="Tu dispositivo aíƒÆ’í‚Âºn no ha sido aprobado por el administrador.")
+        raise HTTPException(status_code=403, detail="Tu dispositivo aún no ha sido aprobado por el administrador.")
         
     if device.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Este dispositivo estíƒÆ’í‚Â¡ registrado a otro usuario.")
+        raise HTTPException(status_code=403, detail="Este dispositivo está registrado a otro usuario.")
 
-    # Bloquear el usuario (para concurrencia y evitar doble marcaciíƒÆ’í‚Â³n)
+    # Bloquear el usuario (para concurrencia y evitar doble marcación)
     locked_user = db.query(models.User).filter(models.User.id == current_user.id).with_for_update().first()
     if not locked_user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado.")
@@ -352,7 +352,7 @@ def scan_attendance(
 
     # 3. Obtener los registros de hoy usando SQL filtering (cast al timezone correcto / Date)
     from sqlalchemy import cast, Date
-    # AproximaciíƒÆ’í‚Â³n segura para PostgreSQL (asumiendo timestamp almacenado en UTC)
+    # Aproximación segura para PostgreSQL (asumiendo timestamp almacenado en UTC)
     # Filtramos donde la fecha local coincida. En su defecto, restamos 5 horas a nivel SQL
     from datetime import timedelta
     today_records = db.query(models.AttendanceRecord).filter(
@@ -363,14 +363,14 @@ def scan_attendance(
     entry_today = next((r for r in today_records if r.record_type == "ENTRADA"), None)
     exit_today = next((r for r in reversed(today_records) if r.record_type == "SALIDA"), None)
 
-    # REGLA 1: LíƒÆ’í‚Â­mite diario de jornada (1 Entrada y 1 Salida por díƒÆ’í‚Â­a)
+    # REGLA 1: Límite diario de jornada (1 Entrada y 1 Salida por día)
     if entry_today and exit_today:
         raise HTTPException(
             status_code=400,
-            detail="Jornada finalizada: Ya registraste tu Entrada y tu Salida el díƒÆ’í‚Â­a de hoy. íƒâ€ší‚Â¡Hasta maíƒÆ’í‚Â±ana!"
+            detail="Jornada finalizada: Ya registraste tu Entrada y tu Salida el día de hoy. ¡Hasta mañana!"
         )
 
-    # REGLA 2: Cooldown Anti-Doble MarcaciíƒÆ’í‚Â³n Involuntaria (MíƒÆ’í‚Â­nimo 15 minutos)
+    # REGLA 2: Cooldown Anti-Doble Marcación Involuntaria (Mínimo 15 minutos)
     last_record = today_records[-1] if today_records else None
     if last_record:
         last_ts = last_record.timestamp if last_record.timestamp.tzinfo else last_record.timestamp.replace(tzinfo=timezone.utc)
@@ -381,7 +381,7 @@ def scan_attendance(
             tipo_anterior = "Entrada" if last_record.record_type == "ENTRADA" else "Salida"
             raise HTTPException(
                 status_code=400,
-                detail=f"Acabas de registrar tu {tipo_anterior} hace instantes. Por seguridad contra doble marcaciíƒÆ’í‚Â³n, debes esperar al menos {remaining_minutes} minuto(s) para volver a marcar."
+                detail=f"Acabas de registrar tu {tipo_anterior} hace instantes. Por seguridad contra doble marcación, debes esperar al menos {remaining_minutes} minuto(s) para volver a marcar."
             )
 
     # 4. Determinar si corresponde ENTRADA o SALIDA
@@ -390,7 +390,7 @@ def scan_attendance(
         attendance_status = "SALIDA"
         tardiness_minutes = 0
 
-        # CíƒÆ’í‚Â¡lculo de horas trabajadas entre Entrada y Salida
+        # Cálculo de horas trabajadas entre Entrada y Salida
         prev_ts = entry_today.timestamp if entry_today.timestamp.tzinfo else entry_today.timestamp.replace(tzinfo=timezone.utc)
         diff_seconds = max(0, (now_utc - prev_ts).total_seconds())
         hours_worked = round(diff_seconds / 3600.0, 2)
@@ -402,7 +402,7 @@ def scan_attendance(
         record_type = "ENTRADA"
         hours_worked = None
 
-        # EvaluaciíƒÆ’í‚Â³n de PUNTUALIDAD vs TARDANZA
+        # Evaluación de PUNTUALIDAD vs TARDANZA
         start_time_str = user.work_start_time or "08:00"
         tolerance_mins = user.tolerance_minutes if user.tolerance_minutes is not None else 15
 
@@ -415,15 +415,15 @@ def scan_attendance(
         tolerance_limit = scheduled_start + timedelta(minutes=tolerance_mins)
 
         if now_local > tolerance_limit:
-            # LlegíƒÆ’í‚Â³ despuíƒÆ’í‚Â©s de la tolerancia -> TARDANZA
+            # Llegó después de la tolerancia -> TARDANZA
             tardiness_minutes = max(1, int((now_local - scheduled_start).total_seconds() // 60))
             attendance_status = "TARDANZA"
             message = f"Entrada registrada con TARDANZA ({tardiness_minutes} min de retraso) para {user.name}."
         else:
-            # LlegíƒÆ’í‚Â³ a tiempo o dentro de la tolerancia -> PUNTUAL
+            # Llegó a tiempo o dentro de la tolerancia -> PUNTUAL
             tardiness_minutes = 0
             attendance_status = "PUNTUAL"
-            message = f"íƒâ€ší‚Â¡Entrada registrada PUNTUAL para {user.name}!"
+            message = f"¡Entrada registrada PUNTUAL para {user.name}!"
 
     # 4. Guardar en Base de Datos
     new_record = models.AttendanceRecord(
@@ -450,8 +450,3 @@ def scan_attendance(
         "hours_worked": hours_worked,
         "timestamp": new_record.timestamp
     }
-
-
-
-
-

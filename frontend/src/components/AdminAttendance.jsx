@@ -109,7 +109,7 @@ export default function AdminAttendance() {
 
   const parseSafeDate = (isoString) => {
     if (!isoString) return null;
-    // Si la BD guardÃ³ el ISO sin timezone (ej. 2026-09-15T12:00:00), asumimos que es UTC agregando 'Z'
+    // Si la BD guardó el ISO sin timezone (ej. 2026-09-15T12:00:00), asumimos que es UTC agregando 'Z'
     const hasTimezone = isoString.endsWith('Z') || isoString.includes('+') || (isoString.lastIndexOf('-') > 10);
     return new Date(hasTimezone ? isoString : isoString + 'Z');
   };
@@ -223,7 +223,7 @@ export default function AdminAttendance() {
                 type="button"
                 onClick={handleDownloadPayrollCSV}
                 className="bg-indigo-600 text-white px-3 py-2 rounded-md font-medium text-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center justify-center w-full sm:w-auto col-span-2 sm:col-span-1"
-                title="Descargar resumen consolidado para cÃ¡lculo de planilla"
+                title="Descargar resumen consolidado para cálculo de planilla"
               >
                 <FileSpreadsheet className="w-4 h-4 mr-1.5" />
                 Planilla (Mes)
@@ -329,12 +329,12 @@ export default function AdminAttendance() {
             </table>
           </div>
 
-          {/* PaginaciÃ³n */}
+          {/* Paginación */}
           <div className="bg-white px-4 py-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 sm:px-6">
             <div className="flex-1 flex flex-col sm:flex-row items-center justify-between w-full">
               <div className="mb-4 sm:mb-0">
                 <p className="text-sm text-slate-700">
-                  Mostrando pÃ¡gina <span className="font-medium">{page}</span> de <span className="font-medium">{totalPages}</span> ({totalRecords} registros en total)
+                  Mostrando página <span className="font-medium">{page}</span> de <span className="font-medium">{totalPages}</span> ({totalRecords} registros en total)
                 </p>
               </div>
               <div>

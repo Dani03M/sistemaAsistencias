@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -112,7 +112,7 @@ const Kiosk = () => {
 
   const progress = Math.max(0, (timeLeft / (error ? 5 : 10)) * 100);
 
-  // VISTA DE AUTORIZACIí“N (LOGIN)
+  // VISTA DE AUTORIZACIÓN (LOGIN)
   if (!isAuthorized) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4">
@@ -148,7 +148,7 @@ const Kiosk = () => {
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
                   className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
-                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                  placeholder="••••••••"
                 />
               </div>
               <button
@@ -170,7 +170,7 @@ const Kiosk = () => {
     );
   }
 
-  // VISTA DEL KIOSCO (Cí“DIGO QR)
+  // VISTA DEL KIOSCO (CÓDIGO QR)
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col items-center justify-between p-6 select-none relative overflow-hidden">
       {/* Botón de Pantalla Completa y Menú */}
