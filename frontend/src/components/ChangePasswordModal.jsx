@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import axios from "axios";
 import { Lock, X } from "lucide-react";
 
@@ -14,11 +14,11 @@ export default function ChangePasswordModal({ isOpen, onClose, userType, apiUrl 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      setStatus({ type: "error", message: "Las contrase�as nuevas no coinciden" });
+      setStatus({ type: "error", message: "Las contraseñas nuevas no coinciden" });
       return;
     }
     if (newPassword.length < 6) {
-      setStatus({ type: "error", message: "La contrase�a debe tener al menos 6 caracteres" });
+      setStatus({ type: "error", message: "La contraseña debe tener al menos 6 caracteres" });
       return;
     }
 
@@ -32,7 +32,7 @@ export default function ChangePasswordModal({ isOpen, onClose, userType, apiUrl 
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setStatus({ type: "success", message: "Contrase�a actualizada exitosamente" });
+      setStatus({ type: "success", message: "Contraseña actualizada exitosamente" });
       setTimeout(() => {
         onClose();
         setCurrentPassword("");
@@ -43,7 +43,7 @@ export default function ChangePasswordModal({ isOpen, onClose, userType, apiUrl 
     } catch (err) {
       setStatus({ 
         type: "error", 
-        message: err.response?.data?.detail || "Error al actualizar contrase�a" 
+        message: err.response?.data?.detail || "Error al actualizar contraseña" 
       });
     } finally {
       setLoading(false);
@@ -58,7 +58,7 @@ export default function ChangePasswordModal({ isOpen, onClose, userType, apiUrl 
             <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
               <Lock className="w-5 h-5" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800">Cambiar Contrase�a</h2>
+            <h2 className="text-xl font-bold text-slate-800">Cambiar Contraseña</h2>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition-colors">
             <X className="w-5 h-5" />
@@ -75,18 +75,18 @@ export default function ChangePasswordModal({ isOpen, onClose, userType, apiUrl 
           )}
           
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">Contrase�a Actual</label>
+            <label className="text-sm font-medium text-slate-700">Contraseña Actual</label>
             <input
               type="password"
               required
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-slate-50 focus:bg-white"
-              placeholder="Ingresa tu contrase�a actual"
+              placeholder="Ingresa tu contraseña actual"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">Nueva Contrase�a</label>
+            <label className="text-sm font-medium text-slate-700">Nueva Contraseña</label>
             <input
               type="password"
               required
@@ -97,14 +97,14 @@ export default function ChangePasswordModal({ isOpen, onClose, userType, apiUrl 
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">Confirmar Nueva Contrase�a</label>
+            <label className="text-sm font-medium text-slate-700">Confirmar Nueva Contraseña</label>
             <input
               type="password"
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-slate-50 focus:bg-white"
-              placeholder="Repite tu nueva contrase�a"
+              placeholder="Repite tu nueva contraseña"
             />
           </div>
           
